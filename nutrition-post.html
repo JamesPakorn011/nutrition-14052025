@@ -1,0 +1,564 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แบบทดสอบความรู้ด้านอาหารและโภชนาการ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #f0f9f0;
+        }
+        .gradient-header {
+            background: linear-gradient(135deg, #1a8754 0%, #34d399 100%);
+        }
+        .option-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        .option-card:hover {
+            transform: translateX(5px);
+        }
+        .option-card.selected {
+            border-left: 4px solid #059669;
+            background-color: #d1fae5;
+        }
+        .timer-bar {
+            transition: width 1s linear;
+        }
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="gradient-header text-white p-4 shadow-lg">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center mb-4 md:mb-0">
+                <i class="fas fa-brain text-3xl mr-3"></i>
+                <div>
+                    <h1 class="text-2xl font-bold">แบบทดสอบความรู้ (Post-Test)</h1>
+                    <p class="text-green-100">ด้านอาหารและโภชนาการ กลุ่มวัยทำงาน</p>
+                </div>
+            </div>
+            <div id="header-info" class="hidden bg-white bg-opacity-20 rounded-lg p-3 text-center">
+                <div class="flex items-center justify-center space-x-4">
+                    <div>
+                        <p class="text-sm">ผู้ทดสอบ</p>
+                        <p id="user-name-display" class="font-semibold"></p>
+                    </div>
+                    <div class="border-r border-white h-10"></div>
+                    <div>
+                        <p class="text-sm">คำถามที่</p>
+                        <p id="question-counter" class="font-semibold">0/20</p>
+                    </div>
+                    <div class="border-r border-white h-10"></div>
+                    <div>
+                        <p class="text-sm">คะแนน</p>
+                        <p id="score-display" class="font-semibold">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto p-4">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="bg-white rounded-xl shadow-lg p-6 max-w-2xl mx-auto my-8">
+            <div class="text-center mb-6">
+                <i class="fas fa-clipboard-check text-green-600 text-5xl mb-4"></i>
+                <h2 class="text-2xl font-bold text-gray-800">ยินดีต้อนรับสู่แบบทดสอบความรู้</h2>
+                <p class="text-gray-600 mt-2">ด้านอาหารและโภชนาการ สำหรับกลุ่มวัยทำงาน</p>
+            </div>
+            
+            <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-info-circle text-green-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-green-700">
+                            แบบทดสอบนี้มีทั้งหมด 20 ข้อ แต่ละข้อมีเวลาทำ 2 นาที
+                            กรุณากรอกชื่อ-นามสกุลของคุณก่อนเริ่มทำแบบทดสอบ
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label for="user-name" class="block text-sm font-medium text-gray-700 mb-1">ชื่อ-นามสกุล</label>
+                <input type="text" id="user-name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500" placeholder="กรุณากรอกชื่อ-นามสกุล">
+                <p id="name-error" class="text-red-500 text-sm mt-1 hidden">กรุณากรอกชื่อ-นามสกุลก่อนเริ่มทำแบบทดสอบ</p>
+            </div>
+            
+            <button id="start-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 flex items-center justify-center">
+                <i class="fas fa-play-circle mr-2"></i>
+                เริ่มทำแบบทดสอบ
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden">
+            <!-- Timer -->
+            <div class="mb-4 bg-white rounded-lg shadow p-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-gray-700 font-medium">เวลาที่เหลือ</span>
+                    <span id="timer" class="text-gray-700 font-medium">2:00</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div id="timer-bar" class="timer-bar bg-green-600 h-2.5 rounded-full" style="width: 100%"></div>
+                </div>
+            </div>
+            
+            <!-- Question Card -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <h3 id="question-text" class="text-xl font-semibold text-gray-800 mb-6"></h3>
+                
+                <div id="options-container" class="space-y-3">
+                    <!-- Options will be inserted here -->
+                </div>
+            </div>
+            
+            <!-- Navigation Button -->
+            <div class="flex justify-end">
+                <button id="next-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-md transition duration-300 flex items-center disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    <span>ข้อถัดไป</span>
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="hidden">
+            <div class="bg-white rounded-xl shadow-lg p-8 max-w-2xl mx-auto my-8">
+                <div class="text-center mb-8">
+                    <div id="result-icon" class="text-6xl mb-4 mx-auto"></div>
+                    <h2 class="text-2xl font-bold text-gray-800">ผลการทดสอบ</h2>
+                    <p id="user-result-name" class="text-gray-600 mt-1"></p>
+                </div>
+                
+                <div class="bg-green-50 rounded-lg p-6 mb-6">
+                    <div class="flex flex-col items-center">
+                        <div class="text-5xl font-bold text-green-600 mb-2">
+                            <span id="final-score">0</span>/<span id="total-questions">20</span>
+                        </div>
+                        <p id="result-message" class="text-gray-700 text-center"></p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-gray-50 rounded-lg p-4 text-center">
+                        <p class="text-sm text-gray-500">ตอบถูก</p>
+                        <p id="correct-answers" class="text-xl font-semibold text-green-600">0 ข้อ</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4 text-center">
+                        <p class="text-sm text-gray-500">ตอบผิด</p>
+                        <p id="wrong-answers" class="text-xl font-semibold text-red-500">0 ข้อ</p>
+                    </div>
+                </div>
+                
+                <button id="restart-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 flex items-center justify-center">
+                    <i class="fas fa-redo-alt mr-2"></i>
+                    เริ่มทำแบบทดสอบใหม่
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-green-800 text-white py-4">
+        <div class="container mx-auto px-4 text-center">
+            <p>พัฒนาโดย JamesPakorn</p>
+        </div>
+    </footer>
+
+    <script>
+        // Quiz data
+        const quizData = [
+            {
+                question: "นางสาวรติมา ใจชื่อ น้ำหนัก 80 ส่วนสูง 160 มีค่าดัชนีมวลกายเป็นเท่าไร",
+                options: ["23.25", "25.25", "31.25", "33.25"],
+                answer: "31.25"
+            },
+            {
+                question: "นางสาวรติมา ใจชื่อ น้ำหนัก 80 ส่วนสูง 160 เมื่อแปลผลระดับดัชนีมวลกาย (BMI) อยู่ในระดับใด",
+                options: ["ปกติ", "น้ำหนักเกิน", "อ้วนระดับ 1", "อ้วนระดับ 2"],
+                answer: "อ้วนระดับ 2"
+            },
+            {
+                question: "ผู้หญิงวัยทำงานต้องการพลังงาน (กิโลแคลอรี่) ประมาณเท่าไรต่อวัน",
+                options: ["1400 กิโลแคลอรี่ต่อวัน", "1600 กิโลแคลอรี่ต่อวัน", "1800 กิโลแคลอรี่ต่อวัน", "2000 กิโลแคลอรี่ต่อวัน"],
+                answer: "1600 กิโลแคลอรี่ต่อวัน"
+            },
+            {
+                question: "ผู้ชายวัยทำงานต้องการพลังงาน (กิโลแคลอรี่) ประมาณเท่าไรต่อวัน",
+                options: ["1400 กิโลแคลอรี่ต่อวัน", "1600 กิโลแคลอรี่ต่อวัน", "1800 กิโลแคลอรี่ต่อวัน", "2000 กิโลแคลอรี่ต่อวัน"],
+                answer: "2000 กิโลแคลอรี่ต่อวัน"
+            },
+            {
+                question: "นางสาว นพมาศ ศรีนคร รับประทานแตงโม 8 ชิ้น (1 ส่วน) มีคาร์โบไฮเดรต 15 กรัม คิดเป็นพลังงานเท่าใด",
+                options: ["120 กิโลแคลอรี่", "100 กิโลแคลอรี่", "80 กิโลแคลอรี่", "60 กิโลแคลอรี่"],
+                answer: "60 กิโลแคลอรี่"
+            },
+            {
+                question: "นางสาว จิระประภา ทะเลไทย ดื่มน้ำหวาน มีน้ำตาลทราย 9 ช้อนชา คิดเป็นพลังงานเท่าใด",
+                options: ["36 กิโลแคลอรี่", "66 กิโลแคลอรี่", "96 กิโลแคลอรี่", "144 กิโลแคลอรี่"],
+                answer: "144 กิโลแคลอรี่"
+            },
+            {
+                question: "นางสาว ศศิกานต์ รักธรรมชาติ รับประทานอาหารมื่อเที่ยงประกอบด้วย ข้าวสวย 3 ทัพพี ผักคะน้า 2 ทัพพี ไข่ไก่ 2 ฟอง กล้วยน้ำว้า 2 ผล คิดเป็นพลังงานเท่าใด",
+                options: ["425 กิโลแคลอรี่", "500 กิโลแคลอรี่", "560 กิโลแคลอรี่", "600 กิโลแคลอรี่"],
+                answer: "560 กิโลแคลอรี่"
+            },
+            {
+                question: "อาหารกลุ่มข้าวแป้ง 3 ทัพพี เมื่อคิดเป็นปริมาณคาร์บคือเท่าใด",
+                options: ["6 คาร์บ", "1 คาร์บ", "3 คาร์บ", "4 คาร์บ"],
+                answer: "3 คาร์บ"
+            },
+            {
+                question: "น้ำตาล 3 ช้อนชา เมื่อคิดเป็นปริมาณคาร์บคือเท่าใด",
+                options: ["6 คาร์บ", "1 คาร์บ", "3 คาร์บ", "4 คาร์บ"],
+                answer: "1 คาร์บ"
+            },
+            {
+                question: "ผัก 3 ทัพพี เมื่อคิดเป็นปริมาณคาร์บคือเท่าใด",
+                options: ["6 คาร์บ", "1 คาร์บ", "3 คาร์บ", "4 คาร์บ"],
+                answer: "1 คาร์บ"
+            },
+            {
+                question: "นม 1 แก้ว (240 ซีซี) เมื่อคิดเป็นปริมาณคาร์บคือเท่าใด",
+                options: ["6 คาร์บ", "1 คาร์บ", "3 คาร์บ", "4 คาร์บ"],
+                answer: "1 คาร์บ"
+            },
+            {
+                question: "ตามคำแนะนำของกรมอนามัย ควรบริโภคน้ำตาลไม่เกินวันละกี่ช้อนชา",
+                options: ["6 ช้อนชา", "1 ช้อนชา", "3 ช้อนชา", "4 ช้อนชา"],
+                answer: "6 ช้อนชา"
+            },
+            {
+                question: "การลดความเสี่ยงต่อการเกิดโรคความดันโลหิตสูง โรคไต ควรบริโภคโซเดียมไม่เกินวันละเท่าไร",
+                options: ["2400 มิลลิกรัม", "2000 มิลลิกรัม", "2100 มิลลิกรัม", "2200 มิลลิกรัม"],
+                answer: "2000 มิลลิกรัม"
+            },
+            {
+                question: "ควรรับประทานผลไม้ปริมาณเท่าไรต่อวัน",
+                options: ["1 - 3 ส่วนต่อวัน", "3 - 5 ส่วนต่อวัน", "6 - 8 ส่วนต่อวัน", "9 - 11 ส่วนต่อวัน"],
+                answer: "3 - 5 ส่วนต่อวัน"
+            },
+            {
+                question: "เนื้อสัตว์ (ไขมันสูง) ปริมาณ 6 ช้อนโต๊ะ คิดเป็นพลังงานเท่าไร",
+                options: ["600 กิโลแคลอรี่", "300 กิโลแคลอรี่", "400 กิโลแคลอรี่", "500 กิโลแคลอรี่"],
+                answer: "300 กิโลแคลอรี่"
+            },
+            {
+                question: "กาแฟเย็น 1 แก้ว มีน้ำตาล 9 ช้อนชา เมื่อคิดเป็นปริมาณคาร์บคือเท่าใด",
+                options: ["6 คาร์บ", "1 คาร์บ", "3 คาร์บ", "4 คาร์บ"],
+                answer: "3 คาร์บ"
+            },
+            {
+                question: "ผู้หญิงวัยทำงาน ควรบริโภคเนื้อสัตว์อย่างกี่ช้อนโต๊ะต่อวัน",
+                options: ["6 ช้อนโต๊ะ", "1 ช้อนโต๊ะ", "3 ช้อนโต๊ะ", "4 ช้อนโต๊ะ"],
+                answer: "6 ช้อนโต๊ะ"
+            },
+            {
+                question: "เพื่อสุขภาพที่ดี ควรรับประทานผักประมาณเท่าไรต่อวัน",
+                options: ["1 - 3 ทัพพีต่อวัน", "4 - 6 ทัพพีต่อวัน", "7 - 9 ทัพพีต่อวัน", "10 - 12 ทัพพีต่อวัน"],
+                answer: "4 - 6 ทัพพีต่อวัน"
+            },
+            {
+                question: "เมื่อต้องรับประทาน ข้าวโพด ทดแทน ข้าวสวย 1 ทัพพี รับประทาน ข้าวโพด ปริมาณเท่าไร",
+                options: ["2 ฝัก", "1 ฝัก", "ครึ่ง ฝัก", "3 ฝัก"],
+                answer: "1 ฝัก"
+            },
+            {
+                question: "เมื่อต้องรับประทาน ขนมปัง ทดแทน ข้าวสวย 1 ทัพพี รับประทาน ขนมปัง ปริมาณเท่าไร",
+                options: ["2 แผ่น", "1 แผ่น", "ครึ่ง แผ่น", "3 แผ่น"],
+                answer: "1 แผ่น"
+            }
+        ];
+
+        // Variables
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedOption = null;
+        let timer;
+        let timeLeft = 120; // 2 minutes in seconds
+        let userName = "";
+        let shuffledQuestions = [];
+
+        // DOM Elements
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const startBtn = document.getElementById('start-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const userNameInput = document.getElementById('user-name');
+        const nameError = document.getElementById('name-error');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const timerDisplay = document.getElementById('timer');
+        const timerBar = document.getElementById('timer-bar');
+        const questionCounter = document.getElementById('question-counter');
+        const scoreDisplay = document.getElementById('score-display');
+        const userNameDisplay = document.getElementById('user-name-display');
+        const headerInfo = document.getElementById('header-info');
+        const finalScore = document.getElementById('final-score');
+        const correctAnswers = document.getElementById('correct-answers');
+        const wrongAnswers = document.getElementById('wrong-answers');
+        const resultMessage = document.getElementById('result-message');
+        const resultIcon = document.getElementById('result-icon');
+        const userResultName = document.getElementById('user-result-name');
+
+        // Event Listeners
+        startBtn.addEventListener('click', startQuiz);
+        nextBtn.addEventListener('click', goToNextQuestion);
+        restartBtn.addEventListener('click', restartQuiz);
+
+        // Disable next button initially
+        nextBtn.disabled = true;
+
+        // Functions
+        function startQuiz() {
+            userName = userNameInput.value.trim();
+            
+            if (!userName) {
+                nameError.classList.remove('hidden');
+                return;
+            }
+            
+            // Shuffle questions
+            shuffledQuestions = [...quizData].sort(() => Math.random() - 0.5);
+            
+            welcomeScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            headerInfo.classList.remove('hidden');
+            
+            userNameDisplay.textContent = userName;
+            
+            loadQuestion();
+            startTimer();
+        }
+
+        function loadQuestion() {
+            // Reset selected option
+            selectedOption = null;
+            nextBtn.disabled = true;
+            
+            // Update question counter
+            questionCounter.textContent = `${currentQuestion + 1}/${shuffledQuestions.length}`;
+            
+            // Get current question
+            const question = shuffledQuestions[currentQuestion];
+            
+            // Set question text
+            questionText.textContent = `${currentQuestion + 1}. ${question.question}`;
+            
+            // Clear options container
+            optionsContainer.innerHTML = '';
+            
+            // Shuffle options
+            const shuffledOptions = [...question.options].sort(() => Math.random() - 0.5);
+            
+            // Add options
+            shuffledOptions.forEach((option, index) => {
+                const optionCard = document.createElement('div');
+                optionCard.className = 'option-card p-4 border rounded-lg cursor-pointer hover:bg-green-50';
+                optionCard.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-6 w-6 rounded-full border-2 border-green-500 flex items-center justify-center mr-3">
+                            <span class="option-letter text-green-600 font-medium">${String.fromCharCode(65 + index)}</span>
+                        </div>
+                        <span>${option}</span>
+                    </div>
+                `;
+                
+                optionCard.addEventListener('click', () => selectOption(optionCard, option));
+                optionsContainer.appendChild(optionCard);
+            });
+            
+            // Reset timer
+            resetTimer();
+        }
+
+        function selectOption(optionCard, option) {
+            // Remove selected class from all options
+            const options = document.querySelectorAll('.option-card');
+            options.forEach(opt => opt.classList.remove('selected'));
+            
+            // Add selected class to clicked option
+            optionCard.classList.add('selected');
+            
+            // Store selected option
+            selectedOption = option;
+            
+            // Enable next button
+            nextBtn.disabled = false;
+        }
+
+        function goToNextQuestion() {
+            // Check answer
+            const question = shuffledQuestions[currentQuestion];
+            if (selectedOption === question.answer) {
+                score++;
+                scoreDisplay.textContent = score;
+            }
+            
+            // Move to next question or end quiz
+            currentQuestion++;
+            
+            if (currentQuestion < shuffledQuestions.length) {
+                loadQuestion();
+            } else {
+                endQuiz();
+            }
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            timeLeft = 120; // 2 minutes
+            updateTimerDisplay();
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                // Update timer bar
+                const percentage = (timeLeft / 120) * 100;
+                timerBar.style.width = `${percentage}%`;
+                
+                if (timeLeft <= 10) {
+                    timerBar.classList.add('bg-red-500');
+                    timerBar.classList.remove('bg-green-600');
+                } else {
+                    timerBar.classList.add('bg-green-600');
+                    timerBar.classList.remove('bg-red-500');
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    goToNextQuestion();
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            timeLeft = 120; // 2 minutes
+            updateTimerDisplay();
+            timerBar.style.width = '100%';
+            timerBar.classList.add('bg-green-600');
+            timerBar.classList.remove('bg-red-500');
+            startTimer();
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        function endQuiz() {
+            clearInterval(timer);
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            headerInfo.classList.add('hidden');
+            
+            // Update results
+            finalScore.textContent = score;
+            correctAnswers.textContent = `${score} ข้อ`;
+            wrongAnswers.textContent = `${shuffledQuestions.length - score} ข้อ`;
+            userResultName.textContent = userName;
+            
+            // Set result message and icon
+            const percentage = (score / shuffledQuestions.length) * 100;
+            
+            if (percentage >= 80) {
+                resultMessage.textContent = "ยอดเยี่ยม! คุณมีความรู้ด้านอาหารและโภชนาการในระดับดีมาก";
+                resultIcon.innerHTML = '<i class="fas fa-trophy text-yellow-500 pulse-animation"></i>';
+                createConfetti();
+            } else if (percentage >= 60) {
+                resultMessage.textContent = "ดี! คุณมีความรู้ด้านอาหารและโภชนาการในระดับดี";
+                resultIcon.innerHTML = '<i class="fas fa-medal text-green-500"></i>';
+            } else if (percentage >= 40) {
+                resultMessage.textContent = "พอใช้! คุณมีความรู้ด้านอาหารและโภชนาการในระดับปานกลาง";
+                resultIcon.innerHTML = '<i class="fas fa-star-half-alt text-blue-500"></i>';
+            } else {
+                resultMessage.textContent = "ควรปรับปรุง! คุณควรศึกษาเพิ่มเติมเกี่ยวกับอาหารและโภชนาการ";
+                resultIcon.innerHTML = '<i class="fas fa-book-reader text-red-500"></i>';
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            selectedOption = null;
+            
+            scoreDisplay.textContent = score;
+            
+            resultsScreen.classList.add('hidden');
+            welcomeScreen.classList.remove('hidden');
+            userNameInput.value = '';
+            nameError.classList.add('hidden');
+        }
+
+        function createConfetti() {
+            const confettiCount = 100;
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+            
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.top = `${Math.random() * 100}%`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = `${Math.random() * 10 + 5}px`;
+                confetti.style.height = `${Math.random() * 10 + 5}px`;
+                confetti.style.opacity = Math.random();
+                confetti.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
+                
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        // Add animation for falling confetti
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fall {
+                0% {
+                    transform: translateY(-100vh) rotate(0deg);
+                }
+                100% {
+                    transform: translateY(100vh) rotate(720deg);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93a88d06f5ec2705',t:'MTc0NjM2NzUwNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
