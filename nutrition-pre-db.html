@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แบบทดสอบความรู้ด้านอาหารและโภชนาการ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: linear-gradient(135deg, #f5f0ff 0%, #e6d5ff 100%);
+            min-height: 100vh;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(138, 106, 207, 0.2);
+        }
+
+        .option-btn {
+            transition: all 0.3s ease;
+            border: 2px solid #e6d5ff;
+        }
+
+        .option-btn:hover {
+            background-color: #f5f0ff;
+            transform: translateY(-2px);
+        }
+
+        .option-btn.active {
+            background-color: #9f7aea;
+            color: white;
+            border-color: #9f7aea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(159, 122, 234, 0.3);
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+            transition: all 0.3s ease;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .next-btn:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e6d5ff;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 100%);
+            transition: width 0.3s ease;
+        }
+
+        .timer-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e6d5ff;
+            overflow: hidden;
+        }
+
+        .timer-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f87171 0%, #ef4444 100%);
+            transition: width 0.1s linear;
+        }
+
+        .modal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        .bar {
+            position: absolute;
+            bottom: 0;
+            width: 40px;
+            background: linear-gradient(to top, #8b5cf6, #a78bfa);
+            border-radius: 6px 6px 0 0;
+            transition: height 1s ease;
+        }
+
+        .connection-status {
+            transition: all 0.3s ease;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            transform: translateY(-100px);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body class="p-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-8 pt-6">
+            <div class="mx-auto w-32 h-32 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-full h-full">
+                    <circle cx="256" cy="256" r="256" fill="#f3e8ff" />
+                    <g fill="#9f7aea">
+                        <path
+                            d="M256 120c-30 0-54 10-72 30-18 20-27 45-27 75 0 20 5 38 15 55 10 17 25 30 45 40v40c0 5 2 10 6 14s8 6 14 6h38c6 0 10-2 14-6s6-9 6-14v-40c20-10 35-23 45-40 10-17 15-35 15-55 0-30-9-55-27-75-18-20-42-30-72-30zm-19 220h38v10h-38v-10zm19-40c-25 0-46-9-62-26-16-17-24-38-24-64 0-25 8-46 24-63 16-17 37-26 62-26s46 9 62 26c16 17 24 38 24 63 0 26-8 47-24 64-16 17-37 26-62 26z" />
+                        <path
+                            d="M256 130c-22 0-40 7-54 22-14 15-21 33-21 55 0 22 7 40 21 55 14 15 32 22 54 22s40-7 54-22c14-15 21-33 21-55 0-22-7-40-21-55-14-15-32-22-54-22zm0 134c-16 0-29-5-39-16-10-11-15-25-15-41 0-16 5-30 15-41 10-11 23-16 39-16s29 5 39 16c10 11 15 25 15 41 0 16-5 30-15 41-10 11-23 16-39 16z" />
+                        <circle cx="236" cy="190" r="15" />
+                        <circle cx="276" cy="190" r="15" />
+                        <path d="M256 220c-12 0-22 5-30 15 3 5 8 7 14 7h32c6 0 11-2 14-7-8-10-18-15-30-15z" />
+                    </g>
+                    <g fill="#8b5cf6">
+                        <circle cx="180" cy="330" r="25" />
+                        <circle cx="332" cy="330" r="25" />
+                        <circle cx="236" cy="370" r="25" />
+                        <circle cx="276" cy="370" r="25" />
+                    </g>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-purple-800 mb-2">แบบทดสอบความรู้ (Pre-Test)</h1>
+            <h2 class="text-xl text-purple-700">ด้านอาหารและโภชนาการ กลุ่มวัยทำงาน</h2>
+
+            <!-- Connection Status -->
+            <div class="flex items-center justify-center mt-4">
+                <div id="connection-status" class="connection-status flex items-center px-3 py-1 rounded-full text-sm">
+                    <span id="connection-icon" class="w-3 h-3 rounded-full mr-2"></span>
+                    <span id="connection-text"></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Registration Form -->
+            <div id="registration-form" class="quiz-container p-8 mb-8">
+                <h3 class="text-2xl font-semibold text-purple-800 mb-6 text-center">ลงทะเบียนก่อนเริ่มทำแบบทดสอบ</h3>
+                <div class="mb-6">
+                    <label for="fullname" class="block text-sm font-medium text-gray-700 mb-2">ชื่อ-นามสกุล <span
+                            class="text-red-500">*</span></label>
+                    <input type="text" id="fullname"
+                        class="w-full px-4 py-3 rounded-lg border border-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="กรุณากรอกชื่อ-นามสกุล" required>
+                    <p id="name-error" class="text-red-500 text-sm mt-1 hidden">กรุณากรอกชื่อ-นามสกุล</p>
+                </div>
+                <div class="text-center">
+                    <button id="start-btn"
+                        class="next-btn text-white font-medium py-3 px-8 rounded-full flex items-center justify-center mx-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
+                            fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        เริ่มทำแบบทดสอบ
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz Section -->
+            <div id="quiz-section" class="hidden">
+                <div class="quiz-container p-8 mb-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="text-purple-800">
+                            <span id="current-user" class="font-medium"></span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-gray-600 mb-1">เวลาที่เหลือ</div>
+                            <div id="timer" class="text-xl font-semibold text-purple-800">02:00</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="timer-bar">
+                            <div id="timer-fill" class="timer-fill w-full"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <span class="text-sm text-gray-600">ข้อที่</span>
+                            <span id="current-question" class="text-lg font-semibold text-purple-800">1</span>
+                            <span class="text-lg text-purple-800">/</span>
+                            <span id="total-questions" class="text-lg text-purple-800">20</span>
+                        </div>
+                        <div>
+                            <span class="text-sm text-gray-600">คะแนน</span>
+                            <span id="score" class="text-lg font-semibold text-purple-800">0</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="progress-bar">
+                            <div id="progress-fill" class="progress-fill" style="width: 5%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 id="question-text" class="text-xl font-medium text-purple-900 mb-6"></h3>
+                        <div id="options-container" class="space-y-4">
+                            <!-- Options will be inserted here -->
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button id="next-btn"
+                            class="next-btn text-white font-medium py-3 px-8 rounded-full flex items-center justify-center mx-auto"
+                            disabled>
+                            <span>ข้อถัดไป</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results-section" class="hidden">
+                <div class="quiz-container p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-24 h-24 mx-auto mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-purple-800 mb-2">การทดสอบเสร็จสิ้น!</h3>
+                        <p class="text-gray-600" id="user-result-name"></p>
+                    </div>
+
+                    <div class="bg-purple-50 rounded-lg p-6 mb-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-lg font-medium text-purple-800">คะแนนของคุณ</span>
+                            <div>
+                                <span id="final-score" class="text-2xl font-bold text-purple-800">0</span>
+                                <span class="text-lg text-purple-800">/</span>
+                                <span id="max-score" class="text-lg text-purple-800">20</span>
+                            </div>
+                        </div>
+                        <div class="w-full bg-purple-200 rounded-full h-4">
+                            <div id="score-bar" class="bg-purple-600 h-4 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button id="restart-btn"
+                            class="next-btn text-white font-medium py-3 px-8 rounded-full flex items-center justify-center mx-auto">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            เริ่มทำแบบทดสอบใหม่
+                        </button>
+                        <button id="show-stats-btn"
+                            class="mt-4 text-purple-700 font-medium py-2 px-4 rounded-full flex items-center justify-center mx-auto border border-purple-300 hover:bg-purple-50">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
+                                <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
+                            </svg>
+                            ดูสถิติการทดสอบ
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="hidden">
+                <div class="quiz-container p-8 mb-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-semibold text-purple-800">สถิติการทดสอบ</h3>
+                        <button id="close-dashboard-btn" class="text-gray-500 hover:text-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-purple-50 p-6 rounded-lg">
+                            <div class="text-sm text-purple-600 mb-1">จำนวนผู้ทำแบบทดสอบ</div>
+                            <div class="text-3xl font-bold text-purple-800" id="total-participants">0</div>
+                        </div>
+                        <div class="bg-purple-50 p-6 rounded-lg">
+                            <div class="text-sm text-purple-600 mb-1">คะแนนเฉลี่ย</div>
+                            <div class="text-3xl font-bold text-purple-800" id="average-score">0</div>
+                        </div>
+                        <div class="bg-purple-50 p-6 rounded-lg">
+                            <div class="text-sm text-purple-600 mb-1">คะแนนสูงสุด</div>
+                            <div class="text-3xl font-bold text-purple-800" id="highest-score">0</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <h4 class="text-lg font-medium text-purple-800 mb-4">การกระจายคะแนน</h4>
+                        <div class="chart-container bg-purple-50 p-4 rounded-lg">
+                            <div class="flex justify-between items-end h-full relative">
+                                <div
+                                    class="absolute bottom-0 left-0 right-0 flex justify-between items-end h-[280px] px-4">
+                                    <div class="flex flex-col items-center">
+                                        <div class="bar" style="height: 0%; left: 5%;" data-range="0-5"></div>
+                                        <div class="mt-2 text-sm text-purple-800">0-5</div>
+                                    </div>
+                                    <div class="flex flex-col items-center">
+                                        <div class="bar" style="height: 0%; left: 25%;" data-range="6-10"></div>
+                                        <div class="mt-2 text-sm text-purple-800">6-10</div>
+                                    </div>
+                                    <div class="flex flex-col items-center">
+                                        <div class="bar" style="height: 0%; left: 45%;" data-range="11-15"></div>
+                                        <div class="mt-2 text-sm text-purple-800">11-15</div>
+                                    </div>
+                                    <div class="flex flex-col items-center">
+                                        <div class="bar" style="height: 0%; left: 65%;" data-range="16-20"></div>
+                                        <div class="mt-2 text-sm text-purple-800">16-20</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-lg font-medium text-purple-800 mb-4">ผู้ทำแบบทดสอบล่าสุด</h4>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                                <thead class="bg-purple-100">
+                                    <tr>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-purple-800">ชื่อ-นามสกุล
+                                        </th>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-purple-800">คะแนน</th>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-purple-800">
+                                            วันที่ทำแบบทดสอบ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-participants">
+                                    <!-- Recent participants will be inserted here -->
+                                    <tr>
+                                        <td colspan="3" class="py-4 px-4 text-center text-gray-500">กำลังโหลดข้อมูล...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="text-center py-6">
+            <p class="text-sm text-gray-500">© 2025 JamesPakorn</p>
+        </footer>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast bg-white shadow-lg rounded-lg p-4 max-w-xs w-full flex items-center">
+        <div id="toast-icon" class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mr-3"></div>
+        <div class="flex-grow">
+            <div id="toast-title" class="font-medium"></div>
+            <div id="toast-message" class="text-sm text-gray-600"></div>
+        </div>
+        <button id="toast-close" class="flex-shrink-0 ml-2 text-gray-400 hover:text-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clip-rule="evenodd" />
+            </svg>
+        </button>
+    </div>
+
+    <script>
+        // API URL - Replace with your actual Google Apps Script URL
+        const API_URL = "https://script.google.com/macros/s/AKfycbysIZUh2p8yEU7cS-ZvycF2Dsj3sRBMDGAes6yeUFzGMoq6uJdY3Y2KrZHoOxKygc1QFA/exec";
+
+        // Quiz questions and answers
+        const quizData = [
+            {
+                question: "นางสาวรติมา ใจชื่อ น้ำหนัก 80 ส่วนสูง 160 มีค่าดัชนีมวลกายเป็นเท่าไร",
+                options: ["23.25", "25.25", "31.25", "33.25"],
+                answer: "31.25"
+            },
+            {
+                question: "นางสาวรติมา ใจชื่อ น้ำหนัก 80 ส่วนสูง 160 เมื่อแปลผลระดับดัชนีมวลกาย (BMI) อยู่ในระดับใด",
+                options: ["ปกติ", "น้ำหนักเกิน", "อ้วนระดับ 1", "อ้วนระดับ 2"],
+                answer: "อ้วนระดับ 2"
+            },
+            {
+                question: "ผู้หญิงวัยทำงานต้องการพลังงาน (กิโลแคลอรี่) ประมาณเท่าไรต่อวัน",
+                options: ["1400 กิโลแคลอรี่ต่อวัน", "1600 กิโลแคลอรี่ต่อวัน", "1800 กิโลแคลอรี่ต่อวัน", "2000 กิโลแคลอรี่ต่อวัน"],
+                answer: "1600 กิโลแคลอรี่ต่อวัน"
+            },
+            {
+                question: "ผู้ชายวัยทำงานต้องการพลังงาน (กิโลแคลอรี่) ประมาณเท่าไรต่อวัน",
+                options: ["1400 กิโลแคลอรี่ต่อวัน", "1600 กิโลแคลอรี่ต่อวัน", "1800 กิโลแคลอรี่ต่อวัน", "2000 กิโลแคลอรี่ต่อวัน"],
+                answer: "2000 กิโลแคลอรี่ต่อวัน"
+            },
+            {
+                question: "นางสาว นพมาศ ศรีนคร รับประทานแตงโม 8 ชิ้น (1 ส่วน) มีคาร์โบไฮเดรต 15 กรัม คิดเป็นพลังงานเท่าใด",
+                options: ["120 กิโลแคลอรี่", "100 กิโลแคลอรี่", "80 กิโลแคลอรี่", "60 กิโลแคลอรี่"],
+                answer: "60 กิโลแคลอรี่"
+            },
+            {
+                question: "นางสาว จิระประภา ทะเลไทย ดื่มน้ำหวาน มีน้ำตาลทราย 9 ช้อนชา คิดเป็นพลังงานเท่าใด",
+                options: ["36 กิโลแคลอรี่", "66 กิโลแคลอรี่", "96 กิโลแคลอรี่", "144 กิโลแคลอรี่"],
+                answer: "144 กิโลแคลอรี่"
+            },
+            {
+                question: "นางสาว ศศิกานต์ รักธรรมชาติ รับประทานอาหารมื่อเที่ยงประกอบด้วย ข้าวสวย 3 ทัพพี ผักคะน้า 2 ทัพพี ไข่ไก่ 2 ฟอง กล้วยน้ำว้า 2 ผล คิดเป็นพลังงานเท่าใด",
+                options: ["425 กิโลแคลอรี่", "500 กิโลแคลอรี่", "560 กิโลแคลอรี่", "600 กิโลแคลอรี่"],
+                answer: "560 กิโลแคลอรี่"
+            },
+            {
+                question: "อาหารกลุ่มข้าวแป้ง 3 ทัพพี เมื่อคิดเป็นปริมาณคาร์บคือเท่าใด",
+                options: ["6 คาร์บ", "1 คาร์บ", "3 คาร์บ", "4 คาร์บ"],
+                answer: "3 คาร์บ"
+            },
+            {
+                question: "น้ำตาล 3 ช้อนชา เมื่อคิดเป็นปริมาณคาร์บคือเท่าใด",
+                options: ["6 คาร์บ", "1 คาร์บ", "3 คาร์บ", "4 คาร์บ"],
+                answer: "1 คาร์บ"
+            },
+            {
+                question: "ผัก 3 ทัพพี เมื่อคิดเป็นปริมาณคาร์บคือเท่าใด",
+                options: ["6 คาร์บ", "1 คาร์บ", "3 คาร์บ", "4 คาร์บ"],
+                answer: "1 คาร์บ"
+            },
+            {
+                question: "นม 1 แก้ว (240 ซีซี) เมื่อคิดเป็นปริมาณคาร์บคือเท่าใด",
+                options: ["6 คาร์บ", "1 คาร์บ", "3 คาร์บ", "4 คาร์บ"],
+                answer: "1 คาร์บ"
+            },
+            {
+                question: "ตามคำแนะนำของกรมอนามัย ควรบริโภคน้ำตาลไม่เกินวันละกี่ช้อนชา",
+                options: ["6 ช้อนชา", "1 ช้อนชา", "3 ช้อนชา", "4 ช้อนชา"],
+                answer: "6 ช้อนชา"
+            },
+            {
+                question: "การลดความเสี่ยงต่อการเกิดโรคความดันโลหิตสูง โรคไต ควรบริโภคโซเดียมไม่เกินวันละเท่าไร",
+                options: ["2400 มิลลิกรัม", "2000 มิลลิกรัม", "2100 มิลลิกรัม", "2200 มิลลิกรัม"],
+                answer: "2000 มิลลิกรัม"
+            },
+            {
+                question: "ควรรับประทานผลไม้ปริมาณเท่าไรต่อวัน",
+                options: ["1 - 3 ส่วนต่อวัน", "3 - 5 ส่วนต่อวัน", "6 - 8 ส่วนต่อวัน", "9 - 11 ส่วนต่อวัน"],
+                answer: "3 - 5 ส่วนต่อวัน"
+            },
+            {
+                question: "เนื้อสัตว์ (ไขมันสูง) ปริมาณ 6 ช้อนโต๊ะ คิดเป็นพลังงานเท่าไร",
+                options: ["600 กิโลแคลอรี่", "300 กิโลแคลอรี่", "400 กิโลแคลอรี่", "500 กิโลแคลอรี่"],
+                answer: "300 กิโลแคลอรี่"
+            },
+            {
+                question: "กาแฟเย็น 1 แก้ว มีน้ำตาล 9 ช้อนชา เมื่อคิดเป็นปริมาณคาร์บคือเท่าใด",
+                options: ["6 คาร์บ", "1 คาร์บ", "3 คาร์บ", "4 คาร์บ"],
+                answer: "3 คาร์บ"
+            },
+            {
+                question: "ผู้หญิงวัยทำงาน ควรบริโภคเนื้อสัตว์อย่างกี่ช้อนโต๊ะต่อวัน",
+                options: ["6 ช้อนโต๊ะ", "1 ช้อนโต๊ะ", "3 ช้อนโต๊ะ", "4 ช้อนโต๊ะ"],
+                answer: "6 ช้อนโต๊ะ"
+            },
+            {
+                question: "เพื่อสุขภาพที่ดี ควรรับประทานผักประมาณเท่าไรต่อวัน",
+                options: ["1 - 3 ทัพพีต่อวัน", "4 - 6 ทัพพีต่อวัน", "7 - 9 ทัพพีต่อวัน", "10 - 12 ทัพพีต่อวัน"],
+                answer: "4 - 6 ทัพพีต่อวัน"
+            },
+            {
+                question: "เมื่อต้องรับประทาน ข้าวโพด ทดแทน ข้าวสวย 1 ทัพพี รับประทาน ข้าวโพด ปริมาณเท่าไร",
+                options: ["2 ฝัก", "1 ฝัก", "ครึ่ง ฝัก", "3 ฝัก"],
+                answer: "1 ฝัก"
+            },
+            {
+                question: "เมื่อต้องรับประทาน ขนมปัง ทดแทน ข้าวสวย 1 ทัพพี รับประทาน ขนมปัง ปริมาณเท่าไร",
+                options: ["2 แผ่น", "1 แผ่น", "ครึ่ง แผ่น", "3 แผ่น"],
+                answer: "1 แผ่น"
+            }
+        ];
+
+        // DOM elements
+        const registrationForm = document.getElementById('registration-form');
+        const quizSection = document.getElementById('quiz-section');
+        const resultsSection = document.getElementById('results-section');
+        const dashboardSection = document.getElementById('dashboard-section');
+        const fullnameInput = document.getElementById('fullname');
+        const nameError = document.getElementById('name-error');
+        const startBtn = document.getElementById('start-btn');
+        const currentUser = document.getElementById('current-user');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const currentQuestionEl = document.getElementById('current-question');
+        const totalQuestionsEl = document.getElementById('total-questions');
+        const scoreEl = document.getElementById('score');
+        const finalScoreEl = document.getElementById('final-score');
+        const maxScoreEl = document.getElementById('max-score');
+        const progressFill = document.getElementById('progress-fill');
+        const scoreBar = document.getElementById('score-bar');
+        const timerEl = document.getElementById('timer');
+        const timerFill = document.getElementById('timer-fill');
+        const restartBtn = document.getElementById('restart-btn');
+        const userResultName = document.getElementById('user-result-name');
+        const showStatsBtn = document.getElementById('show-stats-btn');
+        const closeDashboardBtn = document.getElementById('close-dashboard-btn');
+        const connectionStatus = document.getElementById('connection-status');
+        const connectionIcon = document.getElementById('connection-icon');
+        const connectionText = document.getElementById('connection-text');
+        const toast = document.getElementById('toast');
+        const toastIcon = document.getElementById('toast-icon');
+        const toastTitle = document.getElementById('toast-title');
+        const toastMessage = document.getElementById('toast-message');
+        const toastClose = document.getElementById('toast-close');
+        const totalParticipants = document.getElementById('total-participants');
+        const averageScore = document.getElementById('average-score');
+        const highestScore = document.getElementById('highest-score');
+        const recentParticipants = document.getElementById('recent-participants');
+
+        // Quiz variables
+        let shuffledQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedOption = null;
+        let username = '';
+        let timerInterval;
+        let timeLeft = 120; // 2 minutes in seconds
+        let userAnswers = []; // To store user's answers
+        let apiConnected = false;
+
+        // Check API connection on page load
+        checkApiConnection();
+
+        // Initialize the quiz
+        function initQuiz() {
+            // Shuffle questions
+            shuffledQuestions = [...quizData].sort(() => Math.random() - 0.5);
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedOption = null;
+            userAnswers = [];
+
+            // Update UI elements
+            totalQuestionsEl.textContent = shuffledQuestions.length;
+            maxScoreEl.textContent = shuffledQuestions.length;
+
+            // Load first question
+            loadQuestion();
+        }
+
+        // Load question
+        function loadQuestion() {
+            // Reset timer
+            clearInterval(timerInterval);
+            timeLeft = 120;
+            updateTimerDisplay();
+            timerFill.style.width = '100%';
+
+            // Start timer
+            startTimer();
+
+            // Update progress
+            currentQuestionEl.textContent = currentQuestionIndex + 1;
+            progressFill.style.width = `${((currentQuestionIndex + 1) / shuffledQuestions.length) * 100}%`;
+
+            // Get current question
+            const currentQuestion = shuffledQuestions[currentQuestionIndex];
+
+            // Set question text
+            questionText.textContent = currentQuestion.question;
+
+            // Clear previous options
+            optionsContainer.innerHTML = '';
+
+            // Shuffle options
+            const shuffledOptions = [...currentQuestion.options].sort(() => Math.random() - 0.5);
+
+            // Create option buttons
+            shuffledOptions.forEach((option, index) => {
+                const optionBtn = document.createElement('button');
+                optionBtn.className = 'option-btn w-full text-left p-4 rounded-lg flex items-center';
+                optionBtn.innerHTML = `
+                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 text-purple-800 flex items-center justify-center mr-3 font-medium">
+                        ${String.fromCharCode(65 + index)}
+                    </span>
+                    <span>${option}</span>
+                `;
+
+                optionBtn.addEventListener('click', () => selectOption(optionBtn, option));
+                optionsContainer.appendChild(optionBtn);
+            });
+
+            // Disable next button until an option is selected
+            nextBtn.disabled = true;
+            selectedOption = null;
+        }
+
+        // Select option
+        function selectOption(optionBtn, option) {
+            // Remove active class from all options
+            const allOptions = document.querySelectorAll('.option-btn');
+            allOptions.forEach(btn => btn.classList.remove('active'));
+
+            // Add active class to selected option
+            optionBtn.classList.add('active');
+
+            // Enable next button
+            nextBtn.disabled = false;
+
+            // Store selected option
+            selectedOption = option;
+        }
+
+        // Check answer
+        function checkAnswer() {
+            const currentQuestion = shuffledQuestions[currentQuestionIndex];
+            const isCorrect = selectedOption === currentQuestion.answer;
+
+            if (isCorrect) {
+                score++;
+                scoreEl.textContent = score;
+            }
+
+            // Store user's answer
+            userAnswers.push({
+                question: currentQuestion.question,
+                userAnswer: selectedOption,
+                correctAnswer: currentQuestion.answer,
+                isCorrect: isCorrect
+            });
+        }
+
+        // Next question
+        function nextQuestion() {
+            // Check answer
+            checkAnswer();
+
+            // Move to next question or end quiz
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < shuffledQuestions.length) {
+                loadQuestion();
+            } else {
+                endQuiz();
+            }
+        }
+
+        // End quiz
+        function endQuiz() {
+            clearInterval(timerInterval);
+
+            // Hide quiz section
+            quizSection.classList.add('hidden');
+
+            // Show results section
+            resultsSection.classList.remove('hidden');
+
+            // Update results
+            finalScoreEl.textContent = score;
+            scoreBar.style.width = `${(score / shuffledQuestions.length) * 100}%`;
+            userResultName.textContent = username;
+
+            // Save quiz results to Google Sheets
+            saveQuizResults();
+        }
+
+        // Start timer
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+
+                // Update timer bar
+                timerFill.style.width = `${(timeLeft / 120) * 100}%`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    nextQuestion();
+                }
+            }, 1000);
+        }
+
+        // Update timer display
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Check API connection
+        function checkApiConnection() {
+            updateConnectionStatus('checking');
+
+            fetch(API_URL + '?action=ping')
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Network response was not ok');
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        apiConnected = true;
+                        updateConnectionStatus('connected');
+                    } else {
+                        apiConnected = false;
+                        updateConnectionStatus('disconnected');
+                    }
+                })
+                .catch(error => {
+                    console.error('API connection error:', error);
+                    apiConnected = false;
+                    updateConnectionStatus('disconnected');
+                });
+        }
+
+        // Update connection status
+        function updateConnectionStatus(status) {
+            switch (status) {
+                case 'checking':
+                    connectionStatus.className = 'connection-status flex items-center px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800';
+                    connectionIcon.className = 'w-3 h-3 rounded-full mr-2 bg-yellow-400';
+                    connectionText.textContent = 'กำลังตรวจสอบการเชื่อมต่อ...';
+                    break;
+                case 'connected':
+                    connectionStatus.className = 'connection-status flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800';
+                    connectionIcon.className = 'w-3 h-3 rounded-full mr-2 bg-green-500';
+                    connectionText.textContent = 'เชื่อมต่อกับระบบสำเร็จ';
+                    break;
+                case 'disconnected':
+                    connectionStatus.className = 'connection-status flex items-center px-3 py-1 rounded-full text-sm bg-red-100 text-red-800';
+                    connectionIcon.className = 'w-3 h-3 rounded-full mr-2 bg-red-500';
+                    connectionText.textContent = 'ไม่สามารถเชื่อมต่อกับระบบได้';
+                    showToast('error', 'การเชื่อมต่อล้มเหลว', 'ไม่สามารถเชื่อมต่อกับระบบบันทึกข้อมูลได้ โปรดลองอีกครั้งในภายหลัง');
+                    break;
+            }
+        }
+
+        // Save quiz results to Google Sheets
+        function saveQuizResults() {
+            if (!apiConnected) {
+                showToast('error', 'การบันทึกล้มเหลว', 'ไม่สามารถบันทึกผลการทดสอบได้เนื่องจากไม่มีการเชื่อมต่อกับระบบ');
+                return;
+            }
+
+            const quizData = {
+                name: username,
+                score: score,
+                totalQuestions: shuffledQuestions.length,
+                date: new Date().toISOString(),
+                answers: userAnswers
+            };
+
+            fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    // 'Content-Type': 'application/json',
+                    'Content-Type': 'text/plain'
+                },
+                body: JSON.stringify({
+                    action: 'saveQuizResults',
+                    data: quizData
+                })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Network response was not ok');
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        showToast('success', 'บันทึกสำเร็จ', 'บันทึกผลการทดสอบเรียบร้อยแล้ว');
+                    } else {
+                        showToast('error', 'การบันทึกล้มเหลว', data.message || 'เกิดข้อผิดพลาดในการบันทึกผลการทดสอบ');
+                    }
+                })
+                .catch(error => {
+                    console.error('Save quiz results error:', error);
+                    showToast('error', 'การบันทึกล้มเหลว', 'เกิดข้อผิดพลาดในการบันทึกผลการทดสอบ');
+                });
+        }
+
+        // Load quiz statistics
+        function loadQuizStatistics() {
+            if (!apiConnected) {
+                showToast('error', 'การโหลดข้อมูลล้มเหลว', 'ไม่สามารถโหลดข้อมูลสถิติได้เนื่องจากไม่มีการเชื่อมต่อกับระบบ');
+                return;
+            }
+
+            fetch(API_URL + '?action=getStatistics')
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Network response was not ok');
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        updateDashboard(data.statistics);
+                    } else {
+                        showToast('error', 'การโหลดข้อมูลล้มเหลว', data.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูลสถิติ');
+                    }
+                })
+                .catch(error => {
+                    console.error('Load quiz statistics error:', error);
+                    showToast('error', 'การโหลดข้อมูลล้มเหลว', 'เกิดข้อผิดพลาดในการโหลดข้อมูลสถิติ');
+                });
+        }
+
+        // Update dashboard with statistics
+        function updateDashboard(statistics) {
+            // Update summary statistics
+            totalParticipants.textContent = statistics.totalParticipants;
+            averageScore.textContent = statistics.averageScore.toFixed(2);
+            highestScore.textContent = statistics.highestScore;
+
+            // Update score distribution chart
+            const scoreRanges = ['0-5', '6-10', '11-15', '16-20'];
+            const maxCount = Math.max(...Object.values(statistics.scoreDistribution));
+
+            scoreRanges.forEach(range => {
+                const count = statistics.scoreDistribution[range] || 0;
+                const percentage = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                const bar = document.querySelector(`.bar[data-range="${range}"]`);
+
+                if (bar) {
+                    bar.style.height = `${percentage}%`;
+                    bar.title = `${count} คน`;
+                }
+            });
+
+            // Update recent participants table
+            recentParticipants.innerHTML = '';
+
+            if (statistics.recentParticipants.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="3" class="py-4 px-4 text-center text-gray-500">ยังไม่มีข้อมูลผู้ทำแบบทดสอบ</td>
+                `;
+                recentParticipants.appendChild(row);
+            } else {
+                statistics.recentParticipants.forEach(participant => {
+                    const row = document.createElement('tr');
+                    row.className = 'border-t border-gray-200';
+
+                    const date = new Date(participant.date);
+                    const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+
+                    row.innerHTML = `
+                        <td class="py-3 px-4">${participant.name}</td>
+                        <td class="py-3 px-4">${participant.score}/${participant.totalQuestions}</td>
+                        <td class="py-3 px-4">${formattedDate}</td>
+                    `;
+
+                    recentParticipants.appendChild(row);
+                });
+            }
+        }
+
+        // Show toast notification
+        function showToast(type, title, message) {
+            // Set toast content
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+
+            // Set toast style based on type
+            switch (type) {
+                case 'success':
+                    toastIcon.className = 'flex-shrink-0 w-8 h-8 rounded-full bg-green-100 text-green-500 flex items-center justify-center mr-3';
+                    toastIcon.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    `;
+                    break;
+                case 'error':
+                    toastIcon.className = 'flex-shrink-0 w-8 h-8 rounded-full bg-red-100 text-red-500 flex items-center justify-center mr-3';
+                    toastIcon.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    `;
+                    break;
+                case 'warning':
+                    toastIcon.className = 'flex-shrink-0 w-8 h-8 rounded-full bg-yellow-100 text-yellow-500 flex items-center justify-center mr-3';
+                    toastIcon.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                    `;
+                    break;
+            }
+
+            // Show toast
+            toast.classList.add('show');
+
+            // Hide toast after 5 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 5000);
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', () => {
+            username = fullnameInput.value.trim();
+
+            if (username === '') {
+                nameError.classList.remove('hidden');
+                return;
+            }
+
+            // Hide registration form
+            registrationForm.classList.add('hidden');
+
+            // Show quiz section
+            quizSection.classList.remove('hidden');
+
+            // Set username
+            currentUser.textContent = username;
+
+            // Initialize quiz
+            initQuiz();
+        });
+
+        nextBtn.addEventListener('click', nextQuestion);
+
+        restartBtn.addEventListener('click', () => {
+            // Hide results section
+            resultsSection.classList.add('hidden');
+
+            // Show registration form
+            registrationForm.classList.remove('hidden');
+
+            // Reset form
+            fullnameInput.value = '';
+        });
+
+        showStatsBtn.addEventListener('click', () => {
+            // Hide results section
+            resultsSection.classList.add('hidden');
+
+            // Show dashboard section
+            dashboardSection.classList.remove('hidden');
+
+            // Load quiz statistics
+            loadQuizStatistics();
+        });
+
+        closeDashboardBtn.addEventListener('click', () => {
+            // Hide dashboard section
+            dashboardSection.classList.add('hidden');
+
+            // Show results section
+            resultsSection.classList.remove('hidden');
+        });
+
+        toastClose.addEventListener('click', () => {
+            toast.classList.remove('show');
+        });
+
+        // Validate name input
+        fullnameInput.addEventListener('input', () => {
+            if (fullnameInput.value.trim() !== '') {
+                nameError.classList.add('hidden');
+            }
+        });
+
+        // Check API connection every 30 seconds
+        setInterval(checkApiConnection, 30000);
+    </script>
+    <script>(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'93beacc4d05637d5',t:'MTc0NjU5OTQ5MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();</script>
+</body>
+
+</html>
