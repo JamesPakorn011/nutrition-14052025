@@ -1,0 +1,658 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แบบทดสอบความรู้ด้านอาหารและโภชนาการ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            font-family: 'Prompt', sans-serif;
+        }
+        
+        body {
+            background-color: #f8f5ff;
+        }
+        
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(148, 119, 221, 0.15);
+        }
+        
+        .option-card {
+            border: 2px solid #e9e3ff;
+            transition: all 0.3s ease;
+        }
+        
+        .option-card:hover {
+            border-color: #b392ff;
+            background-color: #f8f5ff;
+        }
+        
+        .option-card.selected {
+            border-color: #8a4fff;
+            background-color: #f0e6ff;
+        }
+        
+        .btn-primary {
+            background-color: #9c6eff;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #8a4fff;
+        }
+        
+        .timer-bar {
+            height: 6px;
+            background-color: #e9e3ff;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .timer-progress {
+            height: 100%;
+            background-color: #9c6eff;
+            border-radius: 3px;
+            transition: width 1s linear;
+        }
+        
+        .dashboard-card {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 5px 15px rgba(148, 119, 221, 0.1);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse-animation {
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div id="app" class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="flex justify-center">
+                <svg class="w-[120px] h-[120px]" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="45" fill="#f0e6ff" />
+                    <path d="M30,40 Q50,20 70,40 Q85,55 70,70 Q50,85 30,70 Q15,55 30,40" fill="#b392ff" />
+                    <circle cx="40" cy="45" r="5" fill="#fff" />
+                    <circle cx="60" cy="45" r="5" fill="#fff" />
+                    <path d="M35,65 Q50,75 65,65" stroke="#8a4fff" stroke-width="3" fill="none" />
+                    <path d="M25,30 L35,25" stroke="#8a4fff" stroke-width="2" fill="none" />
+                    <path d="M75,30 L65,25" stroke="#8a4fff" stroke-width="2" fill="none" />
+                    <circle cx="35" cy="25" r="8" fill="#ff9eb1" />
+                    <circle cx="65" cy="25" r="8" fill="#ff9eb1" />
+                    <path d="M30,35 Q50,45 70,35" fill="#f8f5ff" opacity="0.5" />
+                </svg>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-bold mt-4 text-purple-800">แบบทดสอบความรู้ (Pre-Test) ด้านอาหารและโภชนาการ</h1>
+            <h2 class="text-lg md:text-xl text-purple-600 mt-2">กลุ่มวัยทำงาน</h2>
+        </header>
+
+        <!-- Registration Form -->
+        <div id="registration-form" class="quiz-container p-6 md:p-8">
+            <h2 class="text-xl font-semibold text-center text-purple-800 mb-6">กรุณากรอกข้อมูลก่อนเริ่มทำแบบทดสอบ</h2>
+            <div class="mb-6">
+                <label for="fullname" class="block text-gray-700 mb-2">ชื่อ-นามสกุล <span class="text-red-500">*</span></label>
+                <input type="text" id="fullname" class="w-full px-4 py-3 border border-purple-200 rounded-lg focus:outline-none focus:border-purple-500" placeholder="กรุณากรอกชื่อ-นามสกุล" required>
+                <p id="name-error" class="text-red-500 text-sm mt-1 hidden">กรุณากรอกชื่อ-นามสกุล</p>
+            </div>
+            <div class="text-center">
+                <button id="start-quiz" class="btn-primary text-white px-8 py-3 rounded-full font-medium flex items-center justify-center mx-auto">
+                    <i class="fas fa-play-circle mr-2"></i> เริ่มทำแบบทดสอบ
+                </button>
+            </div>
+        </div>
+
+        <!-- Quiz Section -->
+        <div id="quiz-section" class="hidden">
+            <div class="quiz-container p-6 md:p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <p class="text-purple-800 font-medium" id="user-name-display"></p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-purple-800 font-medium">ตอบแล้ว: <span id="answered-count">0</span>/20</p>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <p class="text-sm text-gray-600">เวลาที่เหลือ: <span id="timer">2:00</span></p>
+                        <p class="text-sm text-gray-600">ข้อที่ <span id="current-question">1</span>/20</p>
+                    </div>
+                    <div class="timer-bar">
+                        <div class="timer-progress" id="timer-progress"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-purple-900 mb-6" id="question-text"></h3>
+                    
+                    <div class="space-y-4" id="options-container">
+                        <!-- Options will be generated here -->
+                    </div>
+                </div>
+                
+                <div class="flex justify-center">
+                    <button id="next-question" class="btn-primary text-white px-8 py-3 rounded-full font-medium flex items-center justify-center" disabled>
+                        <span>ข้อถัดไป</span>
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="hidden">
+            <div class="quiz-container p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-center text-purple-800 mb-6">ผลการทดสอบ</h2>
+                
+                <div class="text-center mb-8">
+                    <div class="inline-block p-4 bg-purple-100 rounded-full mb-4">
+                        <i class="fas fa-award text-4xl text-purple-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-purple-900" id="user-result-name"></h3>
+                    <p class="text-3xl font-bold text-purple-700 mt-2">
+                        คะแนนของคุณ: <span id="score">0</span>/20
+                    </p>
+                    <p class="text-gray-600 mt-2" id="score-percentage"></p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="dashboard-card p-5">
+                        <h4 class="text-lg font-semibold text-purple-800 mb-3">
+                            <i class="fas fa-check-circle mr-2"></i> ตอบถูก
+                        </h4>
+                        <p class="text-2xl font-bold text-green-600" id="correct-answers">0</p>
+                    </div>
+                    <div class="dashboard-card p-5">
+                        <h4 class="text-lg font-semibold text-purple-800 mb-3">
+                            <i class="fas fa-times-circle mr-2"></i> ตอบผิด
+                        </h4>
+                        <p class="text-2xl font-bold text-red-500" id="wrong-answers">0</p>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center space-x-4">
+                    <button id="view-dashboard" class="btn-primary text-white px-6 py-3 rounded-full font-medium flex items-center justify-center">
+                        <i class="fas fa-chart-bar mr-2"></i> ดูแดชบอร์ด
+                    </button>
+                    <button id="restart-quiz" class="bg-gray-200 text-gray-800 px-6 py-3 rounded-full font-medium flex items-center justify-center hover:bg-gray-300 transition">
+                        <i class="fas fa-redo mr-2"></i> เริ่มใหม่
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="hidden">
+            <div class="quiz-container p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-center text-purple-800 mb-6">
+                    <i class="fas fa-chart-line mr-2"></i> แดชบอร์ดสรุปผล
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="dashboard-card p-5">
+                        <h4 class="text-lg font-semibold text-purple-800 mb-2">ผู้ทดสอบ</h4>
+                        <p class="text-xl font-bold text-gray-800" id="dashboard-name"></p>
+                    </div>
+                    <div class="dashboard-card p-5">
+                        <h4 class="text-lg font-semibold text-purple-800 mb-2">คะแนน</h4>
+                        <p class="text-xl font-bold text-purple-700" id="dashboard-score"></p>
+                    </div>
+                    <div class="dashboard-card p-5">
+                        <h4 class="text-lg font-semibold text-purple-800 mb-2">เปอร์เซ็นต์</h4>
+                        <p class="text-xl font-bold text-purple-700" id="dashboard-percentage"></p>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card p-5 mb-8">
+                    <h4 class="text-lg font-semibold text-purple-800 mb-4">ประวัติการทดสอบ</h4>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">ชื่อ-นามสกุล</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">คะแนน</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">เปอร์เซ็นต์</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">วันที่</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-table-body">
+                                <!-- History will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center">
+                    <button id="back-to-results" class="bg-gray-200 text-gray-800 px-6 py-3 rounded-full font-medium flex items-center justify-center hover:bg-gray-300 transition">
+                        <i class="fas fa-arrow-left mr-2"></i> กลับไปหน้าผลลัพธ์
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center">
+            <p class="text-sm text-gray-400">© 2025 JamesPakorn</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Quiz questions
+            const questions = [
+                {
+                    question: "นางสาวรติมา ใจชื่อ น้ำหนัก 80 ส่วนสูง 160 มีค่าดัชนีมวลกายเป็นเท่าไร",
+                    options: ["23.25", "25.25", "31.25", "33.25"],
+                    answer: "31.25"
+                },
+                {
+                    question: "นางสาวรติมา ใจชื่อ น้ำหนัก 80 ส่วนสูง 160 เมื่อแปลผลระดับดัชนีมวลกาย (BMI) อยู่ในระดับใด",
+                    options: ["ปกติ", "น้ำหนักเกิน", "อ้วนระดับ 1", "อ้วนระดับ 2"],
+                    answer: "อ้วนระดับ 2"
+                },
+                {
+                    question: "ผู้หญิงวัยทำงานต้องการพลังงาน (กิโลแคลอรี่) ประมาณเท่าไรต่อวัน",
+                    options: ["1400 กิโลแคลอรี่ต่อวัน", "1600 กิโลแคลอรี่ต่อวัน", "1800 กิโลแคลอรี่ต่อวัน", "2000 กิโลแคลอรี่ต่อวัน"],
+                    answer: "1600 กิโลแคลอรี่ต่อวัน"
+                },
+                {
+                    question: "ผู้ชายวัยทำงานต้องการพลังงาน (กิโลแคลอรี่) ประมาณเท่าไรต่อวัน",
+                    options: ["1400 กิโลแคลอรี่ต่อวัน", "1600 กิโลแคลอรี่ต่อวัน", "1800 กิโลแคลอรี่ต่อวัน", "2000 กิโลแคลอรี่ต่อวัน"],
+                    answer: "2000 กิโลแคลอรี่ต่อวัน"
+                },
+                {
+                    question: "นางสาว นพมาศ ศรีนคร รับประทานแตงโม 8 ชิ้น (1 ส่วน) มีคาร์โบไฮเดรต 15 กรัม คิดเป็นพลังงานเท่าใด",
+                    options: ["120 กิโลแคลอรี่", "100 กิโลแคลอรี่", "80 กิโลแคลอรี่", "60 กิโลแคลอรี่"],
+                    answer: "60 กิโลแคลอรี่"
+                },
+                {
+                    question: "นางสาว จิระประภา ทะเลไทย ดื่มน้ำหวาน มีน้ำตาลทราย 9 ช้อนชา คิดเป็นพลังงานเท่าใด",
+                    options: ["36 กิโลแคลอรี่", "66 กิโลแคลอรี่", "96 กิโลแคลอรี่", "144 กิโลแคลอรี่"],
+                    answer: "144 กิโลแคลอรี่"
+                },
+                {
+                    question: "นางสาว ศศิกานต์ รักธรรมชาติ รับประทานอาหารมื่อเที่ยงประกอบด้วย ข้าวสวย 3 ทัพพี ผักคะน้า 2 ทัพพี ไข่ไก่ 2 ฟอง กล้วยน้ำว้า 2 ผล คิดเป็นพลังงานเท่าใด",
+                    options: ["425 กิโลแคลอรี่", "500 กิโลแคลอรี่", "560 กิโลแคลอรี่", "600 กิโลแคลอรี่"],
+                    answer: "560 กิโลแคลอรี่"
+                },
+                {
+                    question: "อาหารกลุ่มข้าวแป้ง 3 ทัพพี เมื่อคิดเป็นปริมาณคาร์บคือเท่าใด",
+                    options: ["6 คาร์บ", "1 คาร์บ", "3 คาร์บ", "4 คาร์บ"],
+                    answer: "3 คาร์บ"
+                },
+                {
+                    question: "น้ำตาล 3 ช้อนชา เมื่อคิดเป็นปริมาณคาร์บคือเท่าใด",
+                    options: ["6 คาร์บ", "1 คาร์บ", "3 คาร์บ", "4 คาร์บ"],
+                    answer: "1 คาร์บ"
+                },
+                {
+                    question: "ผัก 3 ทัพพี เมื่อคิดเป็นปริมาณคาร์บคือเท่าใด",
+                    options: ["6 คาร์บ", "1 คาร์บ", "3 คาร์บ", "4 คาร์บ"],
+                    answer: "1 คาร์บ"
+                },
+                {
+                    question: "นม 1 แก้ว (240 ซีซี) เมื่อคิดเป็นปริมาณคาร์บคือเท่าใด",
+                    options: ["6 คาร์บ", "1 คาร์บ", "3 คาร์บ", "4 คาร์บ"],
+                    answer: "1 คาร์บ"
+                },
+                {
+                    question: "ตามคำแนะนำของกรมอนามัย ควรบริโภคน้ำตาลไม่เกินวันละกี่ช้อนชา",
+                    options: ["6 ช้อนชา", "1 ช้อนชา", "3 ช้อนชา", "4 ช้อนชา"],
+                    answer: "6 ช้อนชา"
+                },
+                {
+                    question: "การลดความเสี่ยงต่อการเกิดโรคความดันโลหิตสูง โรคไต ควรบริโภคโซเดียมไม่เกินวันละเท่าไร",
+                    options: ["2400 มิลลิกรัม", "2000 มิลลิกรัม", "2100 มิลลิกรัม", "2200 มิลลิกรัม"],
+                    answer: "2000 มิลลิกรัม"
+                },
+                {
+                    question: "ควรรับประทานผลไม้ปริมาณเท่าไรต่อวัน",
+                    options: ["1 - 3 ส่วนต่อวัน", "3 - 5 ส่วนต่อวัน", "6 - 8 ส่วนต่อวัน", "9 - 11 ส่วนต่อวัน"],
+                    answer: "3 - 5 ส่วนต่อวัน"
+                },
+                {
+                    question: "เนื้อสัตว์ (ไขมันสูง) ปริมาณ 6 ช้อนโต๊ะ คิดเป็นพลังงานเท่าไร",
+                    options: ["600 กิโลแคลอรี่", "300 กิโลแคลอรี่", "400 กิโลแคลอรี่", "500 กิโลแคลอรี่"],
+                    answer: "300 กิโลแคลอรี่"
+                },
+                {
+                    question: "กาแฟเย็น 1 แก้ว มีน้ำตาล 9 ช้อนชา เมื่อคิดเป็นปริมาณคาร์บคือเท่าใด",
+                    options: ["6 คาร์บ", "1 คาร์บ", "3 คาร์บ", "4 คาร์บ"],
+                    answer: "3 คาร์บ"
+                },
+                {
+                    question: "ผู้หญิงวัยทำงาน ควรบริโภคเนื้อสัตว์อย่างกี่ช้อนโต๊ะต่อวัน",
+                    options: ["6 ช้อนโต๊ะ", "1 ช้อนโต๊ะ", "3 ช้อนโต๊ะ", "4 ช้อนโต๊ะ"],
+                    answer: "6 ช้อนโต๊ะ"
+                },
+                {
+                    question: "เพื่อสุขภาพที่ดี ควรรับประทานผักประมาณเท่าไรต่อวัน",
+                    options: ["1 - 3 ทัพพีต่อวัน", "4 - 6 ทัพพีต่อวัน", "7 - 9 ทัพพีต่อวัน", "10 - 12 ทัพพีต่อวัน"],
+                    answer: "4 - 6 ทัพพีต่อวัน"
+                },
+                {
+                    question: "เมื่อต้องรับประทาน ข้าวโพด ทดแทน ข้าวสวย 1 ทัพพี รับประทาน ข้าวโพด ปริมาณเท่าไร",
+                    options: ["2 ฝัก", "1 ฝัก", "ครึ่ง ฝัก", "3 ฝัก"],
+                    answer: "1 ฝัก"
+                },
+                {
+                    question: "เมื่อต้องรับประทาน ขนมปัง ทดแทน ข้าวสวย 1 ทัพพี รับประทาน ขนมปัง ปริมาณเท่าไร",
+                    options: ["2 แผ่น", "1 แผ่น", "ครึ่ง แผ่น", "3 แผ่น"],
+                    answer: "1 แผ่น"
+                }
+            ];
+            
+            // Variables
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let selectedOption = null;
+            let timerInterval;
+            let timeLeft = 120; // 2 minutes in seconds
+            let userName = "";
+            let userAnswers = Array(questions.length).fill(null);
+            let quizHistory = JSON.parse(localStorage.getItem('quizHistory')) || [];
+            
+            // DOM Elements
+            const registrationForm = document.getElementById('registration-form');
+            const quizSection = document.getElementById('quiz-section');
+            const resultsSection = document.getElementById('results-section');
+            const dashboardSection = document.getElementById('dashboard-section');
+            const startQuizBtn = document.getElementById('start-quiz');
+            const fullnameInput = document.getElementById('fullname');
+            const nameError = document.getElementById('name-error');
+            const userNameDisplay = document.getElementById('user-name-display');
+            const answeredCount = document.getElementById('answered-count');
+            const currentQuestionElement = document.getElementById('current-question');
+            const questionText = document.getElementById('question-text');
+            const optionsContainer = document.getElementById('options-container');
+            const nextQuestionBtn = document.getElementById('next-question');
+            const timerElement = document.getElementById('timer');
+            const timerProgress = document.getElementById('timer-progress');
+            const userResultName = document.getElementById('user-result-name');
+            const scoreElement = document.getElementById('score');
+            const scorePercentage = document.getElementById('score-percentage');
+            const correctAnswers = document.getElementById('correct-answers');
+            const wrongAnswers = document.getElementById('wrong-answers');
+            const viewDashboardBtn = document.getElementById('view-dashboard');
+            const restartQuizBtn = document.getElementById('restart-quiz');
+            const dashboardName = document.getElementById('dashboard-name');
+            const dashboardScore = document.getElementById('dashboard-score');
+            const dashboardPercentage = document.getElementById('dashboard-percentage');
+            const historyTableBody = document.getElementById('history-table-body');
+            const backToResultsBtn = document.getElementById('back-to-results');
+            
+            // Shuffle array function
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+            
+            // Shuffle questions
+            const shuffledQuestions = shuffleArray([...questions]);
+            
+            // Start Quiz
+            startQuizBtn.addEventListener('click', function() {
+                userName = fullnameInput.value.trim();
+                
+                if (!userName) {
+                    nameError.classList.remove('hidden');
+                    fullnameInput.classList.add('border-red-500');
+                    return;
+                }
+                
+                registrationForm.classList.add('hidden');
+                quizSection.classList.remove('hidden');
+                
+                userNameDisplay.textContent = `ผู้ทดสอบ: ${userName}`;
+                
+                loadQuestion();
+                startTimer();
+            });
+            
+            // Load Question
+            function loadQuestion() {
+                const question = shuffledQuestions[currentQuestionIndex];
+                
+                // Update question number
+                currentQuestionElement.textContent = currentQuestionIndex + 1;
+                
+                // Set question text
+                questionText.textContent = question.question;
+                
+                // Clear options container
+                optionsContainer.innerHTML = '';
+                
+                // Shuffle options
+                const shuffledOptions = shuffleArray([...question.options]);
+                
+                // Create option elements
+                shuffledOptions.forEach((option, index) => {
+                    const optionCard = document.createElement('div');
+                    optionCard.className = 'option-card p-4 rounded-lg cursor-pointer';
+                    if (userAnswers[currentQuestionIndex] === option) {
+                        optionCard.classList.add('selected');
+                        selectedOption = option;
+                        nextQuestionBtn.disabled = false;
+                    }
+                    
+                    optionCard.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 rounded-full border-2 border-purple-400 flex items-center justify-center mr-3">
+                                <div class="option-indicator w-3 h-3 rounded-full ${userAnswers[currentQuestionIndex] === option ? 'bg-purple-600' : ''}"></div>
+                            </div>
+                            <span>${option}</span>
+                        </div>
+                    `;
+                    
+                    optionCard.addEventListener('click', function() {
+                        // Remove selected class from all options
+                        document.querySelectorAll('.option-card').forEach(card => {
+                            card.classList.remove('selected');
+                            card.querySelector('.option-indicator').classList.remove('bg-purple-600');
+                        });
+                        
+                        // Add selected class to clicked option
+                        optionCard.classList.add('selected');
+                        optionCard.querySelector('.option-indicator').classList.add('bg-purple-600');
+                        
+                        selectedOption = option;
+                        userAnswers[currentQuestionIndex] = option;
+                        
+                        // Enable next button
+                        nextQuestionBtn.disabled = false;
+                        
+                        // Update answered count
+                        updateAnsweredCount();
+                    });
+                    
+                    optionsContainer.appendChild(optionCard);
+                });
+                
+                // Reset timer
+                resetTimer();
+            }
+            
+            // Update answered count
+            function updateAnsweredCount() {
+                const answered = userAnswers.filter(answer => answer !== null).length;
+                answeredCount.textContent = answered;
+            }
+            
+            // Next Question
+            nextQuestionBtn.addEventListener('click', function() {
+                clearInterval(timerInterval);
+                
+                if (currentQuestionIndex < shuffledQuestions.length - 1) {
+                    currentQuestionIndex++;
+                    selectedOption = null;
+                    nextQuestionBtn.disabled = true;
+                    loadQuestion();
+                } else {
+                    showResults();
+                }
+            });
+            
+            // Timer functions
+            function startTimer() {
+                updateTimerDisplay();
+                timerInterval = setInterval(function() {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        if (selectedOption === null) {
+                            // Auto select first option if none selected
+                            const firstOption = document.querySelector('.option-card');
+                            if (firstOption) {
+                                firstOption.click();
+                            }
+                        }
+                        nextQuestionBtn.click();
+                    }
+                }, 1000);
+            }
+            
+            function resetTimer() {
+                clearInterval(timerInterval);
+                timeLeft = 120; // Reset to 2 minutes
+                updateTimerDisplay();
+                startTimer();
+            }
+            
+            function updateTimerDisplay() {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                
+                // Update progress bar
+                const progressPercentage = (timeLeft / 120) * 100;
+                timerProgress.style.width = `${progressPercentage}%`;
+                
+                // Change color based on time left
+                if (timeLeft <= 30) {
+                    timerProgress.style.backgroundColor = '#ff6b6b';
+                    if (timeLeft <= 10) {
+                        timerElement.classList.add('text-red-600', 'font-bold', 'pulse-animation');
+                    }
+                } else {
+                    timerProgress.style.backgroundColor = '#9c6eff';
+                    timerElement.classList.remove('text-red-600', 'font-bold', 'pulse-animation');
+                }
+            }
+            
+            // Show Results
+            function showResults() {
+                clearInterval(timerInterval);
+                
+                // Calculate score
+                score = 0;
+                userAnswers.forEach((answer, index) => {
+                    if (answer === shuffledQuestions[index].answer) {
+                        score++;
+                    }
+                });
+                
+                // Save to history
+                const result = {
+                    name: userName,
+                    score: score,
+                    percentage: ((score / shuffledQuestions.length) * 100).toFixed(1),
+                    date: new Date().toLocaleDateString('th-TH')
+                };
+                
+                quizHistory.push(result);
+                localStorage.setItem('quizHistory', JSON.stringify(quizHistory));
+                
+                // Update results section
+                quizSection.classList.add('hidden');
+                resultsSection.classList.remove('hidden');
+                
+                userResultName.textContent = userName;
+                scoreElement.textContent = score;
+                scorePercentage.textContent = `คิดเป็น ${((score / shuffledQuestions.length) * 100).toFixed(1)}%`;
+                correctAnswers.textContent = score;
+                wrongAnswers.textContent = shuffledQuestions.length - score;
+                
+                // Update dashboard data
+                dashboardName.textContent = userName;
+                dashboardScore.textContent = `${score}/${shuffledQuestions.length}`;
+                dashboardPercentage.textContent = `${((score / shuffledQuestions.length) * 100).toFixed(1)}%`;
+                
+                // Update history table
+                updateHistoryTable();
+            }
+            
+            // Update History Table
+            function updateHistoryTable() {
+                historyTableBody.innerHTML = '';
+                
+                // Sort history by date (newest first)
+                const sortedHistory = [...quizHistory].reverse();
+                
+                sortedHistory.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="border-t px-4 py-2 text-gray-800">${item.name}</td>
+                        <td class="border-t px-4 py-2 text-gray-800">${item.score}/20</td>
+                        <td class="border-t px-4 py-2 text-gray-800">${item.percentage}%</td>
+                        <td class="border-t px-4 py-2 text-gray-600">${item.date}</td>
+                    `;
+                    historyTableBody.appendChild(row);
+                });
+            }
+            
+            // View Dashboard
+            viewDashboardBtn.addEventListener('click', function() {
+                resultsSection.classList.add('hidden');
+                dashboardSection.classList.remove('hidden');
+            });
+            
+            // Back to Results
+            backToResultsBtn.addEventListener('click', function() {
+                dashboardSection.classList.add('hidden');
+                resultsSection.classList.remove('hidden');
+            });
+            
+            // Restart Quiz
+            restartQuizBtn.addEventListener('click', function() {
+                // Reset variables
+                currentQuestionIndex = 0;
+                score = 0;
+                selectedOption = null;
+                userAnswers = Array(questions.length).fill(null);
+                
+                // Shuffle questions again
+                shuffleArray(shuffledQuestions);
+                
+                // Show registration form
+                resultsSection.classList.add('hidden');
+                registrationForm.classList.remove('hidden');
+                
+                // Clear input
+                fullnameInput.value = '';
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93be80129708d32e',t:'MTc0NjU5NzY2Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
